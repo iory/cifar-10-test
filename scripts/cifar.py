@@ -14,6 +14,9 @@ import chainer.links as L
 from chainer import training
 from chainer.training import extensions
 
+from copy_model import *
+from vggnet import VGGNet
+
 ###################
 # logger settings #
 ###################
@@ -114,6 +117,14 @@ def main():
     # Classifier reports softmax cross entropy loss and accuracy at every
     # iteration, which will be used by the PrintReport extension below.
     model = L.Classifier(MLP(args.unit, 10))
+
+    logger.info("load VGG model")
+    vgg = VGGNet()
+    serializers.load_hdf5(VGG_MODEL_PATH, vgg)
+
+    logger.info("copy vgg model")
+    copy_model(vgg, model)
+
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()  # Make a specified GPU current
         model.to_gpu()  # Copy the model to the GPU
